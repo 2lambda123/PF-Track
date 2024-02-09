@@ -18,6 +18,35 @@ from mmdet.datasets import replace_ImageToTensor
 
 
 def parse_args():
+    """This function parses the arguments passed in through the command line and returns them as a Namespace object.
+    Parameters:
+        - config (str): Path to the test config file.
+        - checkpoint (str): Path to the checkpoint file.
+        - out (str): Path to the output result file in pickle format.
+        - jsonfile_prefix (str): Prefix for the json file output for nuscenes.
+        - fuse-conv-bn (bool): Whether to fuse conv and bn layers.
+        - format-only (bool): Whether to only format the output results without performing evaluation.
+        - eval (list of str): Evaluation metrics to be used.
+        - show (bool): Whether to show the results.
+        - show-dir (str): Directory where the results will be saved.
+        - gpu-collect (bool): Whether to use GPU to collect results.
+        - tmpdir (str): Temporary directory used for collecting results from multiple workers.
+        - seed (int): Random seed.
+        - deterministic (bool): Whether to set deterministic options for CUDNN backend.
+        - cfg-options (list of str): Override some settings in the used config.
+        - options (list of str): Custom options for evaluation.
+        - eval-options (list of str): Custom options for evaluation.
+        - launcher (str): Job launcher to be used.
+        - local_rank (int): Local rank.
+    Returns:
+        - args (Namespace): Namespace object containing the parsed arguments.
+    Processing Logic:
+        - Parses the arguments passed in through the command line.
+        - Sets the LOCAL_RANK environment variable to the local rank.
+        - Raises a ValueError if both options and eval-options are specified.
+        - If only options is specified, a warning is raised and eval-options is set to options.
+        - Returns the parsed arguments as a Namespace object."""
+    
     parser = argparse.ArgumentParser(
         description='MMDet test (and eval) a model')
     parser.add_argument('config', help='test config file path')
@@ -104,6 +133,51 @@ def parse_args():
 
 
 def main():
+    """This function is used to process the configuration file, import modules, set random seeds, build the dataloader, build the model, and load the checkpoint. It also allows for evaluation and formatting of results.
+    Parameters:
+        - args (type): The arguments to be parsed from the configuration file.
+        - args.out (type): The output file path.
+        - args.eval (type): Whether to evaluate the results.
+        - args.format_only (type): Whether to only format the results.
+        - args.show (type): Whether to show the results.
+        - args.show_dir (type): The directory to save the results.
+        - args.eval_options (type): Additional options for evaluation.
+        - args.config (type): The configuration file path.
+        - args.cfg_options (type): Additional options for the configuration.
+        - args.plugin (type): Whether to import modules from plugin.
+        - args.plugin_dir (type): The directory to import modules from.
+        - args.launcher (type): The launcher type.
+        - args.seed (type): The random seed.
+        - args.deterministic (type): Whether to set the random seed to be deterministic.
+        - args.checkpoint (type): The checkpoint file path.
+        - args.fuse_conv_bn (type): Whether to fuse convolution and batch normalization layers.
+        - args.tmpdir (type): The temporary directory for multi-gpu testing.
+        - args.gpu_collect (type): Whether to collect results from multiple GPUs.
+        - args.eval (type): The evaluation metric.
+        - args.jsonfile_prefix (type): The prefix for the json file to save evaluation results.
+    Returns:
+        - outputs (type): The output results.
+    Processing Logic:
+        - Parse arguments from configuration file.
+        - Check for at least one operation to be specified.
+        - Check for conflicting arguments.
+        - Check for valid output file type.
+        - Load configuration file.
+        - Import modules from string list.
+        - Import modules from plugin directory.
+        - Set cudnn_benchmark if specified.
+        - Set pretrained model to None.
+        - Set test mode for dataset.
+        - Set samples_per_gpu to 1 or maximum value from dataset.
+        - Build dataloader.
+        - Build model and load checkpoint.
+        - Fuse convolution and batch normalization layers if specified.
+        - Set model classes and palette for visualization.
+        - Parallelize model if not distributed.
+        - Perform single or multi-gpu testing.
+        - Get rank and evaluate results if specified.
+        - Return outputs."""
+    
     args = parse_args()
 
     assert args.out or args.eval or args.format_only or args.show \

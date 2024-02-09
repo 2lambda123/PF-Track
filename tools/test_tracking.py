@@ -23,6 +23,27 @@ from mmdet.datasets import replace_ImageToTensor
 
 
 def parse_args():
+    """Parameters:
+        - None
+    Returns:
+        - argparse.Namespace: A namespace object containing all the arguments parsed from the command line.
+    Processing Logic:
+        - Parse arguments from the command line using argparse.
+        - Set the LOCAL_RANK environment variable to the local rank.
+        - If both options and eval_options are specified, raise a ValueError.
+        - If only options is specified, print a warning and set eval_options to options.
+        - Return the namespace object containing the parsed arguments.
+    Example:
+        >>> args = parse_args()
+        >>> print(args.config)
+        test_config.py
+        >>> print(args.checkpoint)
+        model.pth
+        >>> print(args.eval)
+        ['bbox', 'segm', 'proposal']
+        >>> print(args.show)
+        True"""
+    
     parser = argparse.ArgumentParser(
         description='MMDet test (and eval) a model')
     parser.add_argument('config', help='test config file path')
@@ -109,6 +130,20 @@ def parse_args():
 
 
 def main():
+    """This function serves as the main function for the program. It parses arguments, checks for errors, imports modules, sets cudnn_benchmark, builds the dataloader, builds the model, and loads the checkpoint. It then runs the model on the test dataset and evaluates the results if specified.
+    Parameters:
+        - args (argparse.Namespace): The arguments parsed from the command line.
+    Returns:
+        - outputs (list): A list of outputs from the model.
+    Processing Logic:
+        - Check for errors and parse arguments.
+        - Import modules from strings and plugin/xx.
+        - Set cudnn_benchmark.
+        - Build the dataloader.
+        - Build the model and load the checkpoint.
+        - Run the model on the test dataset.
+        - Evaluate the results if specified."""
+    
     args = parse_args()
 
     assert args.out or args.eval or args.format_only or args.show \
